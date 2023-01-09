@@ -1,8 +1,8 @@
 import axios from 'axios';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 
-const REACT_API_DOMAIN_URL = process.env.REACT_APP_API_DOMAIN_URL;
-const REACT_API_CLIENT_DOMAIN_URL = process.env.REACT_APP_API_CLIENT_DOMAIN_URL;
+const REACT_API_DOMAIN_URL = 'http://localhost:3000';
+const REACT_API_CLIENT_DOMAIN_URL = 'http://localhost:5000';
 
 export const getLogo = () => {
   return `${REACT_API_CLIENT_DOMAIN_URL}/static/images/logo.png`;
@@ -80,35 +80,38 @@ export const getProductFilteredByCategories = createAsyncThunk(
 );
 
 export const getProductFilteredByProductId = async ({ product_id }) => {
-    try {
-      const resp = await axios.get(`${REACT_API_DOMAIN_URL}/products`);
-      if (resp.status === 200) {
-        let productsData = resp.data;
-        productsData = productsData.filter(
-          (products) => products?.id === product_id
-        );
-        return productsData[0];
-      }
-      console.error('something went wrong');
-    } catch (error) {
-      console.error('Unable to fetch product list');
+  try {
+    const resp = await axios.get(`${REACT_API_DOMAIN_URL}/products`);
+    if (resp.status === 200) {
+      let productsData = resp.data;
+      productsData = productsData.filter(
+        (products) => products?.id === product_id
+      );
+      return productsData[0];
     }
-  };
+    console.error('something went wrong');
+  } catch (error) {
+    console.error('Unable to fetch product list');
+  }
+};
 
 export const addItemToCart = createAsyncThunk(
   'cart/addItemToCart',
   async ({ product_id }) => {
     try {
-      const payload = await axios.post(`${REACT_API_DOMAIN_URL}/addToCart`,product_id);
-      const data = await getProductFilteredByProductId({product_id});
+      const payload = await axios.post(
+        `${REACT_API_DOMAIN_URL}/addToCart`,
+        product_id
+      );
+      const data = await getProductFilteredByProductId({ product_id });
 
-        if (data && payload.data.response === 'Success') {
-          let responseMessage = payload.data.responseMessage;
-          return {
-            data,
-            responseMessage
-          };
-        }
+      if (data && payload.data.response === 'Success') {
+        let responseMessage = payload.data.responseMessage;
+        return {
+          data,
+          responseMessage,
+        };
+      }
       console.error('something went wrong');
     } catch (error) {
       console.error('Unable to fetch product list');
